@@ -7,6 +7,7 @@ import org.bukkit.inventory.meta.BookMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+@SuppressWarnings("unused")
 public class BookBuilder extends ItemBuilder {
     // FIELDS
     private final BookMeta meta;
@@ -26,8 +27,8 @@ public class BookBuilder extends ItemBuilder {
     }
 
     // SETTERS
-    public @NotNull BookBuilder setAuthor (final @Nullable String author) {
-        this.meta.setAuthor(author);
+    public @NotNull BookBuilder setAuthor (final @Nullable Component author) {
+        this.meta.author(author);
         return this;
     }
     public @NotNull BookBuilder addPages (final @NotNull Component... pages) {
@@ -38,8 +39,8 @@ public class BookBuilder extends ItemBuilder {
         this.meta.setGeneration(generation);
         return this;
     }
-    public @NotNull BookBuilder setTitle (final @Nullable String title) {
-        this.meta.setTitle(title);
+    public @NotNull BookBuilder setTitle (final @Nullable Component title) {
+        this.meta.title(title);
         return this;
     }
 
