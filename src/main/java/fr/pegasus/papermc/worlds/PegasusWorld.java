@@ -36,6 +36,17 @@ public class PegasusWorld implements Listener {
 
     private World world;
 
+    /**
+     * Create a new PegasusWorld
+     * @param plugin The plugin instance
+     * @param worldName The name of the world
+     * @param defaultSchematic The default schematic to paste when the world is generated if any
+     * @param difficulty The difficulty of the world
+     * @param gameMode The game mode of the world
+     * @param spawnLocation The spawn location of the world
+     * @param preventions The preventions of the world
+     * @param gameRules The game rules of the world
+     */
     public PegasusWorld(
             final @NotNull JavaPlugin plugin,
             final @NotNull String worldName,
@@ -58,6 +69,11 @@ public class PegasusWorld implements Listener {
         this.world.setDifficulty(difficulty);
     }
 
+    /**
+     * Apply the game rules to the world
+     * @param gameRules The game rules to apply
+     * @param <T> The type of the game rule
+     */
     @SuppressWarnings("unchecked")
     private <T> void applyGameRules(final @NotNull Map<GameRule<?>, Object> gameRules){
         for(Map.Entry<GameRule<?>, Object> gameRule : gameRules.entrySet()){
@@ -65,6 +81,10 @@ public class PegasusWorld implements Listener {
         }
     }
 
+    /**
+     * Generate the world
+     * @return The generated world
+     */
     private World generateWorld(){
         VoidGenerator worldCreator = new VoidGenerator();
         this.world = worldCreator.generate(this.worldName);
@@ -78,6 +98,10 @@ public class PegasusWorld implements Listener {
         return this.world;
     }
 
+    /**
+     * Get the world or generate it if it doesn't exist
+     * @return The world
+     */
     public World getWorld(){
         if(Objects.nonNull(this.world)) return this.world;
         this.plugin.getLogger().info(String.format("Loading world %s...", this.worldName));
@@ -92,18 +116,35 @@ public class PegasusWorld implements Listener {
         return this.world;
     }
 
+    /**
+     * Check if the world has a specific prevention
+     * @param prevention The prevention to check
+     * @return True if the world has the prevention, false otherwise
+     */
     private boolean checkPrevention(final @NotNull WorldPreventions prevention){
         return this.preventions.contains(prevention) ^ this.preventions.contains(WorldPreventions.ALL);
     }
 
+    /**
+     * Get the spawn point of the world
+     * @return The spawn point
+     */
     public Location getSpawnPoint(){
         return this.spawnLocation.toAbsolute(new Location(this.world, 0, 0, 0));
     }
 
+    /**
+     * Get the name of the world
+     * @return The name of the world
+     */
     public String getWorldName() {
         return worldName;
     }
 
+    /**
+     * Prevent entity damages if the world has the prevention
+     * @param e The {@link EntityDamageEvent}
+     */
     @EventHandler
     public void onEntityDamaged(EntityDamageEvent e){
         if(e.getEntity().getWorld().equals(this.world)){
@@ -113,6 +154,10 @@ public class PegasusWorld implements Listener {
         }
     }
 
+    /**
+     * Prevent PvP and PvE if the world has the prevention
+     * @param e The {@link EntityDamageByEntityEvent}
+     */
     @EventHandler
     public void onEntityDamageEntity(EntityDamageByEntityEvent e){
         if(e.getEntity().getWorld().equals(this.world)){
@@ -124,6 +169,10 @@ public class PegasusWorld implements Listener {
         }
     }
 
+    /**
+     * Prevent block placement if the world has the prevention
+     * @param e The {@link BlockPlaceEvent}
+     */
     @EventHandler
     public void onBlockPlaced(BlockPlaceEvent e){
         if(e.getPlayer().getWorld().equals(this.world)){
@@ -133,6 +182,10 @@ public class PegasusWorld implements Listener {
         }
     }
 
+    /**
+     * Prevent block breaking if the world has the prevention
+     * @param e The {@link BlockBreakEvent}
+     */
     @EventHandler
     public void onBlockBreak(BlockBreakEvent e){
         if(e.getPlayer().getWorld().equals(this.world)){
@@ -142,6 +195,10 @@ public class PegasusWorld implements Listener {
         }
     }
 
+    /**
+     * Prevent food level change if the world has the prevention
+     * @param e The {@link FoodLevelChangeEvent}
+     */
     @EventHandler
     public void onFoodLevelChange(FoodLevelChangeEvent e){
         if(e.getEntity() instanceof Player player){
@@ -155,6 +212,10 @@ public class PegasusWorld implements Listener {
         }
     }
 
+    /**
+     * Prevent portal use if the world has the prevention
+     * @param e The {@link PlayerPortalEvent}
+     */
     @EventHandler
     public void onPlayerPortal(PlayerPortalEvent e){
         Player player = e.getPlayer();
@@ -167,7 +228,7 @@ public class PegasusWorld implements Listener {
 
     /**
      * Set the game mode of the player when he joins the world
-     * @param e The event
+     * @param e The {@link PlayerJoinEvent}
      */
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent e){
@@ -179,7 +240,7 @@ public class PegasusWorld implements Listener {
 
     /**
      * Set the game mode of the player when he teleports to the world
-     * @param e The event
+     * @param e The {@link PlayerTeleportEvent}
      */
     @EventHandler
     public void onPlayerTeleport(PlayerTeleportEvent e){

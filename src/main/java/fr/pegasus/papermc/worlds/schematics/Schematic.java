@@ -30,6 +30,12 @@ public class Schematic {
     private final File schematicFile;
     private final Set<SchematicFlags> flags;
 
+    /**
+     * Create a new Schematic instance
+     * @param plugin The plugin instance
+     * @param name The name of the schematic file
+     * @param flags The flags to apply to the schematic
+     */
     public Schematic(final @NotNull Plugin plugin, final @NotNull String name, final SchematicFlags... flags) {
         File pluginFile = new File("schematics/" + name + ".schem");
         this.schematicFile = new File(plugin.getDataFolder() + "/" + pluginFile.getPath());
@@ -44,6 +50,11 @@ public class Schematic {
         }
     }
 
+    /**
+     * Create a new Schematic instance
+     * @param schematicFile The schematic file
+     * @param flags The flags to apply to the schematic
+     */
     public Schematic(final @NotNull File schematicFile, final SchematicFlags... flags) {
         this.schematicFile = schematicFile;
         this.flags = Sets.newHashSet(flags);
@@ -54,6 +65,11 @@ public class Schematic {
         }
     }
 
+    /**
+     * Load the schematic from the file
+     * @return The clipboard
+     * @throws IOException If an error occurs while reading the file
+     */
     private Clipboard load() throws IOException {
         Clipboard localClipboard;
         ClipboardFormat format = ClipboardFormats.findByFile(this.schematicFile);
@@ -66,6 +82,11 @@ public class Schematic {
         return localClipboard;
     }
 
+    /**
+     * Paste the schematic at the given location
+     * @param location The location to paste the schematic
+     * @throws WorldEditException If an error occurs while pasting the schematic
+     */
     public void paste(final @NotNull Location location) throws WorldEditException {
         try (EditSession editSession = WorldEdit.getInstance().newEditSession(BukkitAdapter.adapt(location.getWorld()))) {
             ClipboardHolder clipboardHolder = new ClipboardHolder(this.clipboard);
@@ -79,6 +100,10 @@ public class Schematic {
         }
     }
 
+    /**
+     * Get the block count of the schematic
+     * @return The block count
+     */
     public Map<Material, Integer> getBlockCount(){
         HashMap<Material, Integer> blockCount = new HashMap<>();
         for(BlockVector3 blockVector3: this.clipboard.getRegion()){

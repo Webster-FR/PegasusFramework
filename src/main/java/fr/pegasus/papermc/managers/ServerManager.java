@@ -26,16 +26,27 @@ public class ServerManager implements Listener {
     private PegasusWorld lobbyWorld;
     private final List<PegasusWorld> gameWorlds;
 
+    /**
+     * Create a new ServerManager
+     * @param plugin The plugin instance
+     */
     public ServerManager(final @NotNull JavaPlugin plugin){
         this.plugin = plugin;
         this.gameWorlds = new ArrayList<>();
         getServer().getPluginManager().registerEvents(this, plugin);
     }
 
+    /**
+     * Initialize the lobby world with the default schematic named "lobby"
+     */
     public void initLobby(){
         this.initLobby(new Schematic(this.plugin, "lobby"));
     }
 
+    /**
+     * Initialize the lobby world with the given schematic
+     * @param schematic The schematic to use for the lobby world
+     */
     public void initLobby(final @NotNull Schematic schematic){
         // Create lobby world
         this.lobbyWorld = new WorldBuilder("pegasus_lobby")
@@ -55,18 +66,34 @@ public class ServerManager implements Listener {
         this.plugin.getServer().unloadWorld(defaultEndWorldName, false);
     }
 
+    /**
+     * Add a game world to the server
+     * @param worldBuilder The world builder to use to create the game world
+     */
     public void addGameWorld(final @NotNull WorldBuilder worldBuilder){
         this.gameWorlds.add(worldBuilder.make(this.plugin));
     }
 
+    /**
+     * Get the lobby world
+     * @return The lobby world
+     */
     public PegasusWorld getLobbyWorld() {
         return this.lobbyWorld;
     }
 
+    /**
+     * Get the list of game worlds
+     * @return The list of game worlds
+     */
     public List<PegasusWorld> getGameWorlds() {
         return this.gameWorlds;
     }
 
+    /**
+     * Teleport the player to the lobby world when they join the server
+     * @param e The PlayerJoinEvent
+     */
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerJoin(PlayerJoinEvent e){
         e.getPlayer().teleport(this.getLobbyWorld().getSpawnPoint());

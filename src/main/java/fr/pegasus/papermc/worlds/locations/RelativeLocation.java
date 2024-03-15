@@ -10,14 +10,12 @@ public class RelativeLocation {
     private final float yaw;
     private final float pitch;
 
-    public RelativeLocation(double x, double y, double z, float yaw, float pitch) {
-        this.x = x;
-        this.y = y;
-        this.z = z;
-        this.yaw = yaw;
-        this.pitch = pitch;
-    }
-
+    /**
+     * Create a relative location
+     * @param x X value
+     * @param y Y value
+     * @param z Z value
+     */
     public RelativeLocation(double x, double y, double z) {
         this.x = x;
         this.y = y;
@@ -26,6 +24,28 @@ public class RelativeLocation {
         this.pitch = 0;
     }
 
+    /**
+     * Create a relative location
+     * @param x X value
+     * @param y Y value
+     * @param z Z value
+     * @param yaw Yaw value
+     * @param pitch Pitch value
+     */
+    public RelativeLocation(double x, double y, double z, float yaw, float pitch) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        this.yaw = yaw;
+        this.pitch = pitch;
+    }
+
+    /**
+     * Get the relative location between two locations
+     * @param loc1 First location
+     * @param loc2 Second location
+     * @return A new relative location
+     */
     public static RelativeLocation getRelativeLocation(Location loc1, Location loc2){
         return new RelativeLocation(
                 loc1.getX() - loc2.getX(),
@@ -36,6 +56,11 @@ public class RelativeLocation {
         );
     }
 
+    /**
+     * Convert the relative location to an absolute location
+     * @param loc The base location
+     * @return A new absolute location
+     */
     public Location toAbsolute(Location loc){
         return new Location(
                 loc.getWorld(),
