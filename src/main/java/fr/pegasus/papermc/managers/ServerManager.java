@@ -125,7 +125,7 @@ public class ServerManager implements Listener {
      * Teleport the player to the lobby world when they join the server
      * @param e The PlayerJoinEvent
      */
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerJoin(PlayerJoinEvent e){
         e.getPlayer().teleport(this.getLobbyWorld().getSpawnPoint());
     }
