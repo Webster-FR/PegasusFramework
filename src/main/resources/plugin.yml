@@ -1,4 +1,4 @@
-main: "fr.pegasus.papermc.PegasusPlugin"
+main: "fr.pegasus.papermc.samples.game.GameSamplePlugin"
 
 name: "PegasusFramework"
 version: "0.1"
