@@ -1,5 +1,10 @@
 package fr.pegasus.papermc.managers;
 
+import fr.pegasus.papermc.PegasusPlugin;
+import fr.pegasus.papermc.games.GameManager;
+import fr.pegasus.papermc.games.options.OptionsBuilder;
+import fr.pegasus.papermc.scores.ScoreManager;
+import fr.pegasus.papermc.teams.loaders.DataManager;
 import fr.pegasus.papermc.worlds.PegasusWorld;
 import fr.pegasus.papermc.worlds.WorldBuilder;
 import fr.pegasus.papermc.worlds.WorldPreventions;
@@ -25,6 +30,7 @@ public class ServerManager implements Listener {
 
     private PegasusWorld lobbyWorld;
     private final List<PegasusWorld> gameWorlds;
+    private final List<GameManager> gameManagers;
 
     /**
      * Create a new ServerManager
@@ -33,6 +39,7 @@ public class ServerManager implements Listener {
     public ServerManager(final @NotNull JavaPlugin plugin){
         this.plugin = plugin;
         this.gameWorlds = new ArrayList<>();
+        this.gameManagers = new ArrayList<>();
         getServer().getPluginManager().registerEvents(this, plugin);
     }
 
@@ -48,6 +55,7 @@ public class ServerManager implements Listener {
      * @param schematic The schematic to use for the lobby world
      */
     public void initLobby(final @NotNull Schematic schematic){
+        PegasusPlugin.logger.info("Initializing lobby world");
         // Create lobby world
         this.lobbyWorld = new WorldBuilder("pegasus_lobby")
                 .setGameMode(GameMode.SURVIVAL)
@@ -58,12 +66,14 @@ public class ServerManager implements Listener {
                 .setDefaultSchematic(schematic)
                 .make(this.plugin);
         // Unload default world
+        PegasusPlugin.logger.info("Unloading default world");
         String defaultWorldName = this.plugin.getServer().getWorlds().getFirst().getName();
         this.plugin.getServer().unloadWorld(defaultWorldName, false);
         String defaultNetherWorldName = defaultWorldName + "_nether";
         this.plugin.getServer().unloadWorld(defaultNetherWorldName, false);
         String defaultEndWorldName = defaultWorldName + "_the_end";
         this.plugin.getServer().unloadWorld(defaultEndWorldName, false);
+        PegasusPlugin.logger.info("Default world unloaded");
     }
 
     /**
@@ -71,7 +81,28 @@ public class ServerManager implements Listener {
      * @param worldBuilder The world builder to use to create the game world
      */
     public void addGameWorld(final @NotNull WorldBuilder worldBuilder){
+        PegasusPlugin.logger.info("Adding game world %s".formatted(worldBuilder.getWorldName()));
         this.gameWorlds.add(worldBuilder.make(this.plugin));
+        PegasusPlugin.logger.info("Game world %s added".formatted(worldBuilder.getWorldName()));
+    }
+
+    /**
+     * Create a new GameManager
+     * @param dataManager The data manager to use
+     * @param optionsBuilder The game options to use
+     * @param scoreManager The score manager to use
+     * @return The new GameManager
+     */
+    public GameManager createGameManager(
+            final @NotNull DataManager dataManager,
+            final @NotNull OptionsBuilder optionsBuilder,
+            final @NotNull ScoreManager scoreManager
+    ){
+        PegasusPlugin.logger.info("Creating game manager");
+        GameManager gameManager = new GameManager(this.plugin, dataManager, optionsBuilder, scoreManager);
+        this.gameManagers.add(gameManager);
+        PegasusPlugin.logger.info("Game manager created");
+        return gameManager;
     }
 
     /**

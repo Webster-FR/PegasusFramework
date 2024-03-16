@@ -132,4 +132,8 @@ public class WorldBuilder {
                 this.gameRules
         );
     }
+
+    public String getWorldName() {
+        return worldName;
+    }
 }
