@@ -46,6 +46,7 @@ public class PegasusWorld implements Listener {
      * @param spawnLocation The spawn location of the world
      * @param preventions The preventions of the world
      * @param gameRules The game rules of the world
+     * @param worldTime The time of the world
      */
     public PegasusWorld(
             final @NotNull JavaPlugin plugin,
@@ -55,7 +56,8 @@ public class PegasusWorld implements Listener {
             final @NotNull GameMode gameMode,
             final @NotNull RelativeLocation spawnLocation,
             final @NotNull Set<WorldPreventions> preventions,
-            final @NotNull Map<GameRule<?>, Object> gameRules
+            final @NotNull Map<GameRule<?>, Object> gameRules,
+            final int worldTime
     ) {
         this.plugin = plugin;
         this.worldName = worldName;
@@ -67,6 +69,8 @@ public class PegasusWorld implements Listener {
         this.plugin.getServer().getPluginManager().registerEvents(this, plugin);
         this.applyGameRules(gameRules);
         this.world.setDifficulty(difficulty);
+        this.world.setTime(worldTime);
+        this.world.setThundering(false);
     }
 
     /**

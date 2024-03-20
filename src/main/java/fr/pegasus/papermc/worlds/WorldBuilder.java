@@ -23,6 +23,7 @@ public class WorldBuilder {
     private RelativeLocation spawnLocation;
     private final Set<WorldPreventions> preventions;
     private final Map<GameRule<?>, Object> gameRules;
+    private int worldTime = 24000;
 
     /**
      * Create a new world builder with default values
@@ -111,8 +112,14 @@ public class WorldBuilder {
      * Set the spawn location of the world
      * @param spawnLocation The spawn location of the world
      */
-    public void setSpawnLocation(final @NotNull RelativeLocation spawnLocation) {
+    public WorldBuilder setSpawnLocation(final @NotNull RelativeLocation spawnLocation) {
         this.spawnLocation = spawnLocation;
+        return this;
+    }
+
+    public WorldBuilder setWorldTime(int worldTime) {
+        this.worldTime = worldTime;
+        return this;
     }
 
     /**
@@ -129,7 +136,8 @@ public class WorldBuilder {
                 this.gameMode,
                 this.spawnLocation,
                 this.preventions,
-                this.gameRules
+                this.gameRules,
+                this.worldTime
         );
     }
 
