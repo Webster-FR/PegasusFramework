@@ -5,33 +5,53 @@ import fr.pegasus.papermc.games.GameManager;
 import fr.pegasus.papermc.games.instances.GameType;
 import fr.pegasus.papermc.games.options.OptionsBuilder;
 import fr.pegasus.papermc.worlds.WorldBuilder;
+import fr.pegasus.papermc.worlds.WorldPreventions;
 import fr.pegasus.papermc.worlds.locations.RelativeLocation;
 import fr.pegasus.papermc.worlds.schematics.Schematic;
 import fr.pegasus.papermc.worlds.schematics.SchematicFlags;
+import io.papermc.paper.event.player.ChatEvent;
 import org.bukkit.Difficulty;
 import org.bukkit.GameMode;
+import org.bukkit.GameRule;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 
 import java.util.List;
 
-public class GameSamplePlugin extends PegasusPlugin {
+public class GameSamplePlugin extends PegasusPlugin implements Listener {
+
+    private static GameManager gameManager;
 
     @Override
     public void onEnable() {
         super.onEnable();
 
+        this.getServer().getPluginManager().registerEvents(this, this);
+
         WorldBuilder gameWorldBuilder = new WorldBuilder("pegasus_sample");
         gameWorldBuilder.setGameMode(GameMode.CREATIVE)
-                .setDifficulty(Difficulty.PEACEFUL);
+                .setDifficulty(Difficulty.PEACEFUL)
+                .addGameRule(GameRule.DO_DAYLIGHT_CYCLE, false)
+                .addGameRule(GameRule.DO_WEATHER_CYCLE, false)
+                .setWorldTime(6000)
+                .addPrevention(WorldPreventions.PREVENT_BUILD)
+                .addPrevention(WorldPreventions.PREVENT_PORTAL_USE);
         this.getServerManager().addGameWorld(gameWorldBuilder);
 
         OptionsBuilder optionsBuilder = new OptionsBuilder()
                 .setGameType(GameType.SOLO)
                 .setWorld(this.getServerManager().getGameWorlds().getFirst())
                 .setInstanceClass(SampleInstance.class)
-                .setRoundDurations(List.of(300))
-                .setSpawnPoints(List.of(new RelativeLocation(0, 100, 0)))
-                .setSchematic(new Schematic(this, "lobby", SchematicFlags.IGNORE_AIR, SchematicFlags.COPY_BIOMES))
+                .setRoundDurations(List.of(15, 10, 5))
+                .setSpawnPoints(List.of(new RelativeLocation(0.5, 0, 0.5)))
+                .setSchematic(new Schematic(this, "instances_test", SchematicFlags.COPY_BIOMES))
                 .setPreAllocatedInstances(1);
-        GameManager gameManager = this.getServerManager().createGameManager(new SampleDataManager(), optionsBuilder, new SampleScoreManager());
+        gameManager = this.getServerManager().createGameManager(new SampleDataManager(), optionsBuilder, new SampleScoreManager());
+    }
+
+    @SuppressWarnings("deprecation")
+    @EventHandler
+    public void onChatMessage(ChatEvent e){
+        gameManager.start(false);
     }
 }
