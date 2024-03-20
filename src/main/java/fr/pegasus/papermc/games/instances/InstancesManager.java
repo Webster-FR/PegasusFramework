@@ -54,16 +54,19 @@ public class InstancesManager implements Listener {
             PegasusPlugin.logger.info("No instances to allocate");
             return;
         }
+        // If the count is less than the current instances count, unallocate the instances
         if(count < this.instances.size()){
             PegasusPlugin.logger.info("Too many instances allocated, unallocating %s instances".formatted(this.instances.size() - count));
             this.instances.subList(count, this.instances.size()).clear();
             PegasusPlugin.logger.info("Unallocated %s instances".formatted(this.instances.size() - count));
             return;
         }
+        // If the count is greater than the current instances count, allocate the missing instances
         int toAllocate = count - this.instances.size();
         for(int i = this.instances.size(); i < count; i++){
             PegasusPlugin.logger.info("Allocating instance %d of %d".formatted(i + 1, count));
             Instance instance = createInstance();
+            this.instances.add(instance);
         }
         PegasusPlugin.logger.info("Allocated %s instances".formatted(toAllocate));
     }
