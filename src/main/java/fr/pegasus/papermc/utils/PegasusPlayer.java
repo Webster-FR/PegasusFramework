@@ -16,4 +16,16 @@ public class PegasusPlayer {
     public Player getPlayer(){
         return Bukkit.getPlayer(name);
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(!(obj instanceof PegasusPlayer))
+            return false;
+        return ((PegasusPlayer) obj).name.equals(this.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return this.name.hashCode();
+    }
 }
