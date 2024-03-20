@@ -61,9 +61,9 @@ public abstract class Instance implements Listener {
         this.teams = teams;
         for(Team team : teams){
             for(PegasusPlayer pPlayer : team.players()){
-                Player player = pPlayer.getPlayer();
-                if(Objects.isNull(player))
+                if(!pPlayer.isOnline())
                     continue;
+                Player player = pPlayer.getPlayer();
                 // TODO: Spawn management
                 player.teleport(this.instanceOptions.getSpawnPoints().getFirst().toAbsolute(this.instanceLocation));
             }
@@ -162,7 +162,7 @@ public abstract class Instance implements Listener {
     public void announceChat(String message){
         for(Team team : this.teams)
             for(PegasusPlayer pPlayer : team.players())
-                if(Objects.nonNull(pPlayer.getPlayer()))
+                if(pPlayer.isOnline())
                     pPlayer.getPlayer().sendMessage(message);
     }
 

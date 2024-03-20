@@ -5,6 +5,8 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
+
 public class PegasusPlayer {
     private final String name;
 
@@ -12,9 +14,15 @@ public class PegasusPlayer {
         this.name = name;
     }
 
-    @Nullable
+    public boolean isOnline(){
+        return Objects.nonNull(Bukkit.getPlayer(this.name));
+    }
+
     public Player getPlayer(){
-        return Bukkit.getPlayer(name);
+        Player player = Bukkit.getPlayer(this.name);
+        if(Objects.isNull(player))
+            throw new RuntimeException("Player %s is not online".formatted(this.name));
+        return player;
     }
 
     @Override
