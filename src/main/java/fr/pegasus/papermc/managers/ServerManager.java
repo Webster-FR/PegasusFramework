@@ -64,6 +64,7 @@ public class ServerManager implements Listener {
                 .addGameRule(GameRule.DO_DAYLIGHT_CYCLE, false)
                 .addGameRule(GameRule.DO_WEATHER_CYCLE, false)
                 .setDefaultSchematic(schematic)
+                .setWorldTime(6000)
                 .make(this.plugin);
         // Unload default world
         PegasusPlugin.logger.info("Unloading default world");
