@@ -1,7 +1,7 @@
 package fr.pegasus.papermc.games.events;
 
 import fr.pegasus.papermc.games.instances.Instance;
-import fr.pegasus.papermc.games.instances.enums.InstanceState;
+import fr.pegasus.papermc.games.instances.enums.InstanceStates;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
@@ -12,10 +12,10 @@ public class InstanceStateChangedEvent extends Event {
     private static final HandlerList HANDLER_LIST = new HandlerList();
 
     private final Instance instance;
-    private final InstanceState oldState;
-    private final InstanceState newState;
+    private final InstanceStates oldState;
+    private final InstanceStates newState;
 
-    public InstanceStateChangedEvent(final @NotNull Instance instance, final @Nullable InstanceState oldState, final @NotNull InstanceState newState){
+    public InstanceStateChangedEvent(final @NotNull Instance instance, final @Nullable InstanceStates oldState, final @NotNull InstanceStates newState){
         this.instance = instance;
         this.oldState = oldState;
         this.newState = newState;
@@ -35,10 +35,10 @@ public class InstanceStateChangedEvent extends Event {
         return instance;
     }
     @Nullable
-    public InstanceState getOldState() {
+    public InstanceStates getOldState() {
         return oldState;
     }
-    public InstanceState getNewState() {
+    public InstanceStates getNewState() {
         return newState;
     }
 }
