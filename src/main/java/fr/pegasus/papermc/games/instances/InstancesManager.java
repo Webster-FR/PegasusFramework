@@ -25,6 +25,12 @@ public class InstancesManager implements Listener {
     private final List<Instance> instances;
     private InstanceManagerStates state;
 
+    /**
+     * Create a new InstancesManager
+     * @param plugin The plugin instance
+     * @param optionsBuilder The options builder
+     * @param scoreManager The score manager
+     */
     public InstancesManager(
             final @NotNull JavaPlugin plugin,
             final @NotNull OptionsBuilder optionsBuilder,
@@ -41,6 +47,7 @@ public class InstancesManager implements Listener {
 
     /**
      * Allocate instances if needed
+     * @param count The number of instances to allocate
      */
     public void allocateInstances(int count){
         if(count == 0){
@@ -61,6 +68,10 @@ public class InstancesManager implements Listener {
         PegasusPlugin.logger.info("Allocated %s instances".formatted(toAllocate));
     }
 
+    /**
+     * Create a new instance and add it to the instances list
+     * @return The created {@link Instance}
+     */
     private Instance createInstance(){
         try {
             Instance instance = (Instance) this.optionsBuilder.getGameOptions().getInstanceClass().getConstructors()[0].newInstance(
@@ -76,6 +87,10 @@ public class InstancesManager implements Listener {
         }
     }
 
+    /**
+     * Dispatch teams to instances
+     * @param teams The teams to dispatch (created in the GameManager)
+     */
     public void dispatchTeams(List<List<Team>> teams){
         // Allocate instances if needed
         this.allocateInstances(teams.size());
@@ -84,18 +99,33 @@ public class InstancesManager implements Listener {
         }
     }
 
+    /**
+     * Start all instances
+     */
     public void startInstances(){
         this.instances.forEach(Instance::start);
     }
 
+    /**
+     * Stop all instances
+     */
     public void stopInstances(){
         this.instances.forEach(instance -> instance.stop(true));
     }
 
+    /**
+     * Get the list of created instances
+     * @return The list of created {@link Instance}
+     */
     public List<Instance> getInstances() {
         return this.instances;
     }
 
+    /**
+     * Check if all instances have the target state
+     * @param targetState The target {@link InstanceStates}
+     * @return True if all instances have the target state, false otherwise
+     */
     private boolean isInstancesHasState(InstanceStates targetState){
         for(Instance instance : this.instances){
             if(instance.getState() != targetState){
@@ -106,12 +136,20 @@ public class InstancesManager implements Listener {
         return true;
     }
 
+    /**
+     * Update the state of the instance manager
+     * @param newState The new {@link InstanceManagerStates}
+     */
     private void updateState(InstanceManagerStates newState){
         InstanceManagerStates oldState = this.state;
         this.state = newState;
         new InstanceManagerStateChangedEvent(this, oldState, this.state).callEvent();
     }
 
+    /**
+     * Handle instance state changed event
+     * @param e The {@link InstanceStateChangedEvent}
+     */
     @EventHandler
     public void onInstanceStateChanged(InstanceStateChangedEvent e){
         PegasusPlugin.logger.info("Instance %d changed state from %s to %s".formatted(e.getInstance().getId(), e.getOldState(), e.getNewState()));
