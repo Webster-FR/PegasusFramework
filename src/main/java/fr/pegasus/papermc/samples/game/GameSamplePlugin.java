@@ -4,6 +4,7 @@ import fr.pegasus.papermc.PegasusPlugin;
 import fr.pegasus.papermc.games.GameManager;
 import fr.pegasus.papermc.games.instances.GameType;
 import fr.pegasus.papermc.games.options.OptionsBuilder;
+import fr.pegasus.papermc.worlds.PegasusWorld;
 import fr.pegasus.papermc.worlds.WorldBuilder;
 import fr.pegasus.papermc.worlds.WorldPreventions;
 import fr.pegasus.papermc.worlds.locations.RelativeLocation;
@@ -34,16 +35,16 @@ public class GameSamplePlugin extends PegasusPlugin implements Listener {
                 .addGameRule(GameRule.DO_DAYLIGHT_CYCLE, false)
                 .addGameRule(GameRule.DO_WEATHER_CYCLE, false)
                 .setWorldTime(6000)
-                .addPrevention(WorldPreventions.PREVENT_BUILD)
-                .addPrevention(WorldPreventions.PREVENT_PORTAL_USE);
-        this.getServerManager().addGameWorld(gameWorldBuilder);
+                .addPrevention(WorldPreventions.ALL)
+                .addPrevention(WorldPreventions.PREVENT_PVP);
+        PegasusWorld gameWorld = this.getServerManager().addGameWorld(gameWorldBuilder);
 
         OptionsBuilder optionsBuilder = new OptionsBuilder()
                 .setGameType(GameType.SOLO)
-                .setWorld(this.getServerManager().getGameWorlds().getFirst())
+                .setWorld(gameWorld)
                 .setInstanceClass(SampleInstance.class)
-                .setRoundDurations(List.of(15, 10, 5))
-                .setSpawnPoints(List.of(new RelativeLocation(0.5, 0, 0.5)))
+                .setRoundDurations(List.of(10))
+                .setSpawnPoints(List.of(new RelativeLocation(0.5, 0, 0.5, 90, 0)))
                 .setSchematic(new Schematic(this, "instances_test", SchematicFlags.COPY_BIOMES))
                 .setPreAllocatedInstances(1);
         gameManager = this.getServerManager().createGameManager(new SampleDataManager(), optionsBuilder, new SampleScoreManager());

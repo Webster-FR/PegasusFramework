@@ -1,9 +1,11 @@
 package fr.pegasus.papermc.samples.game;
 
 import fr.pegasus.papermc.games.instances.Instance;
+import fr.pegasus.papermc.games.instances.enums.InstanceStates;
 import fr.pegasus.papermc.games.options.CommonOptions;
 import fr.pegasus.papermc.games.options.InstanceOptions;
 import fr.pegasus.papermc.scores.ScoreManager;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class SampleInstance extends Instance {
@@ -43,6 +45,11 @@ public class SampleInstance extends Instance {
 
     @Override
     public void onEnd() {
+
+    }
+
+    @Override
+    public void onPlayerReconnect(Player player, InstanceStates disconnectState, InstanceStates reconnectState) {
 
     }
 }
