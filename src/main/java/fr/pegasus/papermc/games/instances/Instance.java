@@ -7,19 +7,21 @@ import fr.pegasus.papermc.games.instances.enums.InstanceStates;
 import fr.pegasus.papermc.games.options.CommonOptions;
 import fr.pegasus.papermc.games.options.InstanceOptions;
 import fr.pegasus.papermc.scores.ScoreManager;
+import fr.pegasus.papermc.teams.PlayerManager;
 import fr.pegasus.papermc.teams.Team;
 import fr.pegasus.papermc.utils.Countdown;
 import fr.pegasus.papermc.utils.PegasusPlayer;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.List;
-import java.util.Objects;
 
 public abstract class Instance implements Listener {
 
@@ -29,7 +31,7 @@ public abstract class Instance implements Listener {
     private final InstanceOptions instanceOptions;
     private final ScoreManager scoreManager;
 
-    private List<Team> teams = null;
+    private PlayerManager playerManager;
     private InstanceStates state;
     private final Location instanceLocation;
     private int currentRound = 1;
@@ -57,49 +59,63 @@ public abstract class Instance implements Listener {
      * Affect and teleport the teams to this instance
      * @param teams The teams to affect
      */
-    public void affect(List<Team> teams){
-        this.teams = teams;
-        for(Team team : teams){
-            for(PegasusPlayer pPlayer : team.players()){
-                if(!pPlayer.isOnline())
-                    continue;
-                Player player = pPlayer.getPlayer();
-                // TODO: Spawn management
-                player.teleport(this.instanceOptions.getSpawnPoints().getFirst().toAbsolute(this.instanceLocation));
-            }
+    public final void affect(List<Team> teams){
+        this.playerManager = new PlayerManager(this.plugin, teams);
+        this.playerManager.setFrozenAll(true);
+        // Affect spawns and teleport players to it
+        this.playerManager.affectSpawns(this.instanceOptions.getSpawnPoints(), this.commonOptions.getGameType());
+        for(PegasusPlayer pPlayer : this.playerManager.getPlayerSpawns().keySet()){
+            if(!pPlayer.isOnline())
+                this.playerManager.playerDisconnect(pPlayer, this.state);
+            Player player = pPlayer.getPlayer();
+            player.setRespawnLocation(this.playerManager.getPlayerSpawns().get(pPlayer).toAbsolute(this.instanceLocation));
+            player.teleport(this.playerManager.getPlayerSpawns().get(pPlayer).toAbsolute(this.instanceLocation));
         }
         this.updateState(InstanceStates.READY);
         this.onReady();
     }
 
-    public void start(){
+    public final void start(){
         if(this.state != InstanceStates.READY)
             throw new IllegalStateException("Instance %d is not ready to start".formatted(this.id));
         this.updateState(InstanceStates.PRE_STARTED);
+        // Pre-start code
+        this.playerManager.setGameModeAll(GameMode.SPECTATOR);
+        this.playerManager.setFrozenAll(false);
         this.onPreStart();
-        new Countdown(3, i -> this.announceChat("Starting in %d seconds".formatted(i)), () -> {
+        new Countdown(10, i -> this.announceChat("Starting in %d seconds".formatted(i)), () -> {
             this.updateState(InstanceStates.STARTED);
+            // Start code
             this.onStart();
             this.startRound();
         }).start(this.plugin);
     }
 
-    public void startRound(){
+    public final void startRound(){
         if(state != InstanceStates.STARTED && state != InstanceStates.ROUND_ENDED)
             throw new IllegalStateException("Instance %d is not ready to start a round".formatted(this.id));
         this.updateState(InstanceStates.ROUND_PRE_STARTED);
+        // Round pre-start code
+        this.playerManager.teleportAllToSpawns(this.instanceLocation);
+        this.playerManager.setGameModeAll(GameMode.ADVENTURE);
+        this.playerManager.setFrozenAll(true);
         this.onRoundPreStart();
-        new Countdown(3, i -> this.announceChat("Round starting in %d seconds".formatted(i)), () -> {
+        new Countdown(5, i -> this.announceChat("Round starting in %d seconds".formatted(i)), () -> {
             this.updateState(InstanceStates.ROUND_STARTED);
+            // Round start code
+            this.playerManager.setFrozenAll(false);
+            this.playerManager.setGameModeAll(GameMode.SURVIVAL);
             this.onRoundStart();
+            new Countdown(this.instanceOptions.getRoundDurations().get(this.currentRound - 1), i -> {}, this::endRound).start(this.plugin);
         }).start(this.plugin);
-        new Countdown(this.instanceOptions.getRoundDurations().get(this.currentRound - 1), i -> {}, this::endRound).start(this.plugin);
     }
 
-    public void endRound(){
+    public final void endRound(){
         if(state != InstanceStates.ROUND_STARTED)
             throw new IllegalStateException("Instance %d is not ready to end a round".formatted(this.id));
         this.updateState(InstanceStates.ROUND_ENDED);
+        // End code
+        this.playerManager.setGameModeAll(GameMode.SPECTATOR);
         this.onRoundEnd();
         this.currentRound++;
         if(this.instanceOptions.getRoundDurations().size() < this.currentRound)
@@ -108,11 +124,12 @@ public abstract class Instance implements Listener {
             new Countdown(3, i -> this.announceChat("Next round starting in %d seconds".formatted(i)), this::startRound).start(this.plugin);
     }
 
-    public void stop(boolean force){
+    public final void stop(boolean force){
         if(state != InstanceStates.ROUND_ENDED)
             throw new IllegalStateException("Instance %d is not ready to end".formatted(this.id));
         this.updateState(InstanceStates.ENDED);
         this.onEnd();
+        this.unregisterEvents();
         if(!force)
             new Countdown(10, i -> this.announceChat("Instance closing in %d seconds".formatted(i)), () -> {
                 this.updateState(InstanceStates.CLOSED);
@@ -128,6 +145,7 @@ public abstract class Instance implements Listener {
     public abstract void onRoundStart();
     public abstract void onRoundEnd();
     public abstract void onEnd();
+    public abstract void onPlayerReconnect(Player player, InstanceStates disconnectState, InstanceStates reconnectState);
 
     // UTILS
 
@@ -147,35 +165,43 @@ public abstract class Instance implements Listener {
      * @return true if the player is in this instance
      */
     private boolean isPlayerInInstance(PegasusPlayer pPlayer){
-        for(Team team : this.teams)
-            if(team.players().contains(pPlayer))
+        for(PegasusPlayer pPlayerInInstance : this.playerManager.getPlayers())
+            if(pPlayerInInstance.equals(pPlayer))
                 return true;
         return false;
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private boolean isPlayerInInstance(String playerName){
         return this.isPlayerInInstance(new PegasusPlayer(playerName));
+    }
+
+    private void unregisterEvents(){
+        PlayerJoinEvent.getHandlerList().unregister(this);
+        PlayerQuitEvent.getHandlerList().unregister(this);
     }
 
     // PUBLIC UTILS
 
     public void announceChat(String message){
-        for(Team team : this.teams)
-            for(PegasusPlayer pPlayer : team.players())
-                if(pPlayer.isOnline())
-                    pPlayer.getPlayer().sendMessage(message);
+        for(PegasusPlayer pPlayer : this.playerManager.getPlayers())
+            if(pPlayer.isOnline())
+                pPlayer.getPlayer().sendMessage(message);
     }
 
     // GETTERS
 
-    public int getId() {
+    public final int getId() {
         return id;
     }
-    public InstanceStates getState() {
+    public final InstanceStates getState() {
         return state;
     }
-    public ScoreManager getScoreManager() {
+    public final ScoreManager getScoreManager() {
         return scoreManager;
+    }
+    public final PlayerManager getPlayerManager() {
+        return playerManager;
     }
 
     // EVENTS
@@ -188,11 +214,26 @@ public abstract class Instance implements Listener {
     public void onPlayerJoin(PlayerJoinEvent e){
         if(this.state == InstanceStates.CREATED)
             return;
-        if(isPlayerInInstance(e.getPlayer().getName())){
-            // TODO: Spawn management
-            e.getPlayer().teleport(this.instanceOptions.getSpawnPoints().getFirst().toAbsolute(this.instanceLocation));
-            // TODO: Need to know if the player has disconnected during this round or not
-            PegasusPlugin.logger.info("Player %s reconnected to instance %d".formatted(e.getPlayer().getName(), this.id));
+        if(!isPlayerInInstance(e.getPlayer().getName()))
+            return;
+        PegasusPlayer pPlayer = new PegasusPlayer(e.getPlayer().getName());
+        Location teleportLocation = this.playerManager.getPlayerSpawns().get(pPlayer).toAbsolute(this.instanceLocation);
+        e.getPlayer().teleport(teleportLocation);
+        switch (this.state){
+            case ROUND_STARTED -> e.getPlayer().setGameMode(GameMode.SURVIVAL);
+            case ROUND_PRE_STARTED -> e.getPlayer().setGameMode(GameMode.ADVENTURE);
+            default -> e.getPlayer().setGameMode(GameMode.SPECTATOR);
         }
+        this.onPlayerReconnect(e.getPlayer(), this.playerManager.playerReconnect(pPlayer), this.state);
+        PegasusPlugin.logger.info("Player %s reconnected to instance %d".formatted(e.getPlayer().getName(), this.id));
+    }
+
+    @EventHandler
+    public void onPlayerQuit(PlayerQuitEvent e){
+        if(this.state == InstanceStates.CREATED)
+            return;
+        if(!this.isPlayerInInstance(e.getPlayer().getName()))
+            return;
+        this.playerManager.playerDisconnect(new PegasusPlayer(e.getPlayer().getName()), this.state);
     }
 }

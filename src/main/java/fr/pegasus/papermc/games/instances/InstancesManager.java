@@ -166,8 +166,10 @@ public class InstancesManager implements Listener {
                     this.updateState(InstanceManagerStates.STARTED);
             }
             case CLOSED -> {
-                if(this.isInstancesHasState(InstanceStates.CLOSED))
+                if(this.isInstancesHasState(InstanceStates.CLOSED)){
+                    this.instances.clear();
                     this.updateState(InstanceManagerStates.ENDED);
+                }
             }
         }
     }
