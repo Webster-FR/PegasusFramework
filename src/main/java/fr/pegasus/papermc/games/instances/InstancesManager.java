@@ -50,7 +50,7 @@ public class InstancesManager implements Listener {
      * @param count The number of instances to allocate
      */
     public void allocateInstances(int count){
-        if(count == 0){
+        if(count == 0 || count == this.instances.size()){
             PegasusPlugin.logger.info("No instances to allocate");
             return;
         }
@@ -65,7 +65,7 @@ public class InstancesManager implements Listener {
         int toAllocate = count - this.instances.size();
         for(int i = this.instances.size(); i < count; i++){
             PegasusPlugin.logger.info("Allocating instance %d of %d".formatted(i + 1, count));
-            Instance instance = createInstance();
+            Instance instance = createInstance(this.instances.size());
             this.instances.add(instance);
         }
         PegasusPlugin.logger.info("Allocated %s instances".formatted(toAllocate));
@@ -75,16 +75,14 @@ public class InstancesManager implements Listener {
      * Create a new instance and add it to the instances list
      * @return The created {@link Instance}
      */
-    private Instance createInstance(){
+    private Instance createInstance(int id){
         try {
-            Instance instance = (Instance) this.optionsBuilder.getGameOptions().getInstanceClass().getConstructors()[0].newInstance(
-                    this.instances.size(),
+            return (Instance) this.optionsBuilder.getGameOptions().getInstanceClass().getConstructors()[0].newInstance(
+                    id,
                     this.plugin,
                     this.optionsBuilder.getCommonOptions(),
                     this.optionsBuilder.getInstanceOptions(),
                     this.scoreManager);
-            this.instances.add(instance);
-            return instance;
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }
