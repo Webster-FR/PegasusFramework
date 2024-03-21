@@ -2,7 +2,6 @@ package fr.pegasus.papermc.managers;
 
 import fr.pegasus.papermc.PegasusPlugin;
 import fr.pegasus.papermc.games.GameManager;
-import fr.pegasus.papermc.games.enums.GameManagerStates;
 import fr.pegasus.papermc.games.options.OptionsBuilder;
 import fr.pegasus.papermc.scores.ScoreManager;
 import fr.pegasus.papermc.teams.loaders.DataManager;
@@ -13,7 +12,6 @@ import fr.pegasus.papermc.worlds.schematics.Schematic;
 import org.bukkit.Difficulty;
 import org.bukkit.GameMode;
 import org.bukkit.GameRule;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;

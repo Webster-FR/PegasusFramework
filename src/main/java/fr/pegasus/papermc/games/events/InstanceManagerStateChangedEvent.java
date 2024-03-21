@@ -1,7 +1,6 @@
 package fr.pegasus.papermc.games.events;
 
 import fr.pegasus.papermc.games.enums.InstanceManagerStates;
-import fr.pegasus.papermc.games.instances.Instance;
 import fr.pegasus.papermc.games.instances.InstancesManager;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
