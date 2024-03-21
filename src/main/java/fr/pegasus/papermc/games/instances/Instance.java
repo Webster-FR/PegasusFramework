@@ -220,8 +220,8 @@ public abstract class Instance implements Listener {
         Location teleportLocation = this.playerManager.getPlayerSpawns().get(pPlayer).toAbsolute(this.instanceLocation);
         e.getPlayer().teleport(teleportLocation);
         switch (this.state){
-            case ROUND_STARTED -> e.getPlayer().setGameMode(GameMode.SURVIVAL);
             case ROUND_PRE_STARTED -> e.getPlayer().setGameMode(GameMode.ADVENTURE);
+            case ROUND_STARTED -> e.getPlayer().setGameMode(GameMode.SURVIVAL);
             default -> e.getPlayer().setGameMode(GameMode.SPECTATOR);
         }
         this.onPlayerReconnect(e.getPlayer(), this.playerManager.playerReconnect(pPlayer), this.state);
