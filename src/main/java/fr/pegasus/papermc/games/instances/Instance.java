@@ -22,6 +22,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.List;
+import java.util.Map;
 
 public abstract class Instance implements Listener {
 
@@ -116,9 +117,14 @@ public abstract class Instance implements Listener {
         this.updateState(InstanceStates.ROUND_ENDED);
         // End code
         this.playerManager.setGameModeAll(GameMode.SPECTATOR);
+        //
+        for(Map.Entry<PegasusPlayer, InstanceStates> keySet : this.playerManager.getDisconnectedPlayers().entrySet()){
+            if(keySet.getValue() == InstanceStates.ROUND_STARTED)
+                this.playerManager.getDisconnectedPlayers().put(keySet.getKey(), InstanceStates.ROUND_PRE_STARTED);
+        }
         this.onRoundEnd();
         this.currentRound++;
-        if(this.instanceOptions.getRoundDurations().size() < this.currentRound)
+        if(this.isGameEnd())
             new Countdown(3, i -> this.announceChat("Game end in %d seconds".formatted(i)), () -> this.stop(false)).start(this.plugin);
         else
             new Countdown(3, i -> this.announceChat("Next round starting in %d seconds".formatted(i)), this::startRound).start(this.plugin);
@@ -157,6 +163,10 @@ public abstract class Instance implements Listener {
         InstanceStates oldState = this.state;
         this.state = state;
         new InstanceStateChangedEvent(this, oldState, this.state).callEvent();
+    }
+
+    private boolean isGameEnd(){
+        return this.instanceOptions.getRoundDurations().size() < this.currentRound;
     }
 
     /**
