@@ -14,6 +14,8 @@ public class Countdown {
     /**
      * Create a countdown with a duration
      * @param duration The duration of the countdown (in seconds)
+     * @param announcer The announcer function that will be called every second
+     * @param action The action that will be called when the countdown reaches 0
      */
     public Countdown(int duration, Consumer<Integer> announcer, Runnable action){
         this.duration = duration;
@@ -21,6 +23,10 @@ public class Countdown {
         this.action = action;
     }
 
+    /**
+     * Start the countdown
+     * @param plugin The plugin instance
+     */
     public void start(JavaPlugin plugin){
         new BukkitRunnable() {
             @Override
