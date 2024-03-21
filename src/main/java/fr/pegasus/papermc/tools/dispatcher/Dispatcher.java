@@ -11,10 +11,22 @@ import java.util.Map;
 public class Dispatcher {
     private final DispatcherAlgorithm dispatchAlgorithm;
 
+    /**
+     * Create a new Dispatcher
+     * @param dispatchAlgorithm The dispatch algorithm to use
+     */
     public Dispatcher(@NotNull DispatcherAlgorithm dispatchAlgorithm){
         this.dispatchAlgorithm = dispatchAlgorithm;
     }
 
+    /**
+     * Dispatch the values to the keys
+     * @param keys The keys
+     * @param values The values
+     * @return The final map
+     * @param <A> The type of the keys
+     * @param <B> The type of the values
+     */
     public <A, B> Map<A, B> dispatch(@NotNull List<A> keys, @NotNull List<B> values){
         Map<A, B> finalMap = new HashMap<>();
         switch (dispatchAlgorithm){
