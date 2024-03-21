@@ -109,6 +109,10 @@ public class PlayerManager implements Listener {
         return state;
     }
 
+    public Map<PegasusPlayer, InstanceStates> getDisconnectedPlayers() {
+        return disconnectedPlayers;
+    }
+
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent e){
         PegasusPlayer pPlayer = this.getPlayers().stream().filter(p -> p.getPlayer().equals(e.getPlayer())).findFirst().orElse(null);
