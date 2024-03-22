@@ -47,7 +47,7 @@ public class GameSamplePlugin extends PegasusPlugin implements Listener {
                 .setSpawnPoints(List.of(new RelativeLocation(0.5, 0, 0.5, 90, 0)))
                 .setSchematic(new Schematic(this, "instances_test", SchematicFlags.COPY_BIOMES))
                 .setPreAllocatedInstances(1);
-        gameManager = this.getServerManager().createGameManager(new SampleDataManager(), optionsBuilder, new SampleScoreManager());
+        gameManager = this.getServerManager().createGameManager(new SampleDataManager(0, 0), optionsBuilder, new SampleScoreManager());
     }
 
     @SuppressWarnings("deprecation")
