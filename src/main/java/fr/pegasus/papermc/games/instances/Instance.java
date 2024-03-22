@@ -20,6 +20,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
@@ -43,6 +44,7 @@ public abstract class Instance implements Listener {
         this.commonOptions = commonOptions;
         this.instanceOptions = instanceOptions;
         this.scoreManager = scoreManager;
+        this.playerManager = new PlayerManager(plugin);
         this.instanceLocation = new Location(commonOptions.getWorld().getWorld(), id * 1000, 100, 0);
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
         // Paste the schematic
@@ -61,7 +63,7 @@ public abstract class Instance implements Listener {
      * @param teams The teams to affect
      */
     public final void affect(List<Team> teams){
-        this.playerManager = new PlayerManager(this.plugin, teams);
+        this.playerManager.setTeams(teams);
         this.playerManager.setFrozenAll(true);
         // Affect spawns and teleport players to it
         this.playerManager.affectSpawns(this.instanceOptions.getSpawnPoints(), this.commonOptions.getGameType());
@@ -107,7 +109,7 @@ public abstract class Instance implements Listener {
             this.playerManager.setFrozenAll(false);
             this.playerManager.setGameModeAll(GameMode.SURVIVAL);
             this.onRoundStart();
-            new Countdown(this.instanceOptions.getRoundDurations().get(this.currentRound - 1), i -> {}, this::endRound).start(this.plugin);
+            new Countdown(this.instanceOptions.getRoundDurations().get(this.currentRound - 1), this::onTick, this::endRound).start(this.plugin);
         }).start(this.plugin);
     }
 
@@ -118,10 +120,9 @@ public abstract class Instance implements Listener {
         // End code
         this.playerManager.setGameModeAll(GameMode.SPECTATOR);
         //
-        for(Map.Entry<PegasusPlayer, InstanceStates> keySet : this.playerManager.getDisconnectedPlayers().entrySet()){
+        for(Map.Entry<PegasusPlayer, InstanceStates> keySet : this.playerManager.getDisconnectedPlayers().entrySet())
             if(keySet.getValue() == InstanceStates.ROUND_STARTED)
                 this.playerManager.getDisconnectedPlayers().put(keySet.getKey(), InstanceStates.ROUND_PRE_STARTED);
-        }
         this.onRoundEnd();
         this.currentRound++;
         if(this.isGameEnd())
@@ -153,6 +154,7 @@ public abstract class Instance implements Listener {
     public abstract void onRoundStart();
     public abstract void onRoundEnd();
     public abstract void onEnd();
+    public abstract void onTick(int remainingTime);
     public abstract void onPlayerReconnect(Player player, InstanceStates disconnectState, InstanceStates reconnectState);
 
     // UTILS
@@ -206,6 +208,7 @@ public abstract class Instance implements Listener {
     public final int getId() {
         return id;
     }
+    @Nullable
     public final InstanceStates getState() {
         return state;
     }
