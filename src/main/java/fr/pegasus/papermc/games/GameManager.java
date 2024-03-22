@@ -182,6 +182,7 @@ public class GameManager implements Listener {
         PegasusPlugin.logger.info("Instance manager state changed from %s to %s".formatted(e.getOldState(), e.getNewState()));
         if(e.getNewState() == InstanceManagerStates.ENDED){
             this.commonOptions.getWorld().getWorld().getPlayers().forEach(player -> {
+                player.getInventory().clear();
                 player.teleport(this.lobbyWorld.getSpawnPoint());
                 player.setRespawnLocation(this.lobbyWorld.getSpawnPoint());
             });
