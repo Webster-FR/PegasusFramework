@@ -17,7 +17,7 @@ import java.util.*;
 
 public class PlayerManager implements Listener {
 
-    private final List<Team> teams;
+    private List<Team> teams;
     private Map<PegasusPlayer, RelativeLocation> playerSpawns;
     private final List<PegasusPlayer> frozenPlayers;
     private final Map<PegasusPlayer, InstanceStates> disconnectedPlayers;
@@ -32,6 +32,26 @@ public class PlayerManager implements Listener {
         this.frozenPlayers = new ArrayList<>();
         this.disconnectedPlayers = new HashMap<>();
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
+    }
+
+    /**
+     * Create a new PlayerManager
+     * @param plugin The plugin instance
+     */
+    public PlayerManager(JavaPlugin plugin) {
+        this.teams = new ArrayList<>();
+        this.playerSpawns = new HashMap<>();
+        this.frozenPlayers = new ArrayList<>();
+        this.disconnectedPlayers = new HashMap<>();
+        plugin.getServer().getPluginManager().registerEvents(this, plugin);
+    }
+
+    /**
+     * Set the teams managed by this PlayerManager
+     * @param teams The teams to manage
+     */
+    public void setTeams(List<Team> teams){
+        this.teams = teams;
     }
 
     /**
