@@ -1,4 +1,4 @@
-main: "fr.pegasus.papermc.samples.PluginStarter"
+main: "fr.pegasus.papermc.samples.game.GameSamplePlugin"
 
 name: "PegasusFramework"
 version: "0.1"
@@ -6,3 +6,4 @@ api-version: "1.20"
 
 authors: ["Loïc MAES", "Xen0Xys"]
 description: "A brand new plugin builder framework for PaperMC 1.20.4"
+depend: ["WorldEdit"]
