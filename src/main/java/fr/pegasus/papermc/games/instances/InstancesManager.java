@@ -8,6 +8,7 @@ import fr.pegasus.papermc.games.instances.enums.InstanceStates;
 import fr.pegasus.papermc.games.options.OptionsBuilder;
 import fr.pegasus.papermc.scores.ScoreManager;
 import fr.pegasus.papermc.teams.Team;
+import fr.pegasus.papermc.utils.PegasusPlayer;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -120,6 +121,18 @@ public class InstancesManager implements Listener {
      */
     public List<Instance> getInstances() {
         return this.instances;
+    }
+
+    /**
+     * Check if the player is in any of the instances
+     * @param player The {@link PegasusPlayer} to check
+     * @return True if the player is in any of the instances, false otherwise
+     */
+    public boolean isPlayerInInstances(PegasusPlayer player){
+        for(Instance instance : this.instances)
+            if(instance.getPlayerManager().getPlayers().contains(player))
+                return true;
+        return false;
     }
 
     /**

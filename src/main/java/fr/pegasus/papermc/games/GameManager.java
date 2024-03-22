@@ -160,6 +160,10 @@ public class GameManager implements Listener {
         return this.state;
     }
 
+    public boolean isPlayerInGame(PegasusPlayer player){
+        return this.instancesManager.isPlayerInInstances(player);
+    }
+
     /**
      * Handle the instance manager state changed event
      * @param e The {@link InstanceManagerStateChangedEvent}

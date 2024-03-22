@@ -5,6 +5,7 @@ import fr.pegasus.papermc.games.GameManager;
 import fr.pegasus.papermc.games.options.OptionsBuilder;
 import fr.pegasus.papermc.scores.ScoreManager;
 import fr.pegasus.papermc.teams.loaders.DataManager;
+import fr.pegasus.papermc.utils.PegasusPlayer;
 import fr.pegasus.papermc.worlds.PegasusWorld;
 import fr.pegasus.papermc.worlds.WorldBuilder;
 import fr.pegasus.papermc.worlds.WorldPreventions;
@@ -130,6 +131,11 @@ public class ServerManager implements Listener {
      */
     @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerJoin(PlayerJoinEvent e){
+        PegasusPlayer pPlayer = new PegasusPlayer(e.getPlayer().getName());
+        for(GameManager gameManager : this.gameManagers)
+            if(gameManager.isPlayerInGame(pPlayer))
+                return;
         e.getPlayer().teleport(this.getLobbyWorld().getSpawnPoint());
+        // Setup spectating hot bar
     }
 }
