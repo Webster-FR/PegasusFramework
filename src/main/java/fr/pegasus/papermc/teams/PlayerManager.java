@@ -1,9 +1,11 @@
 package fr.pegasus.papermc.teams;
 
+import com.google.common.collect.Lists;
 import fr.pegasus.papermc.games.instances.GameType;
 import fr.pegasus.papermc.games.instances.enums.InstanceStates;
 import fr.pegasus.papermc.tools.dispatcher.Dispatcher;
 import fr.pegasus.papermc.tools.dispatcher.DispatcherAlgorithm;
+import fr.pegasus.papermc.utils.Announcer;
 import fr.pegasus.papermc.utils.PegasusPlayer;
 import fr.pegasus.papermc.worlds.locations.RelativeLocation;
 import org.bukkit.GameMode;
@@ -23,6 +25,9 @@ public class PlayerManager implements Listener {
     private final List<PegasusPlayer> frozenPlayers;
     private final Map<PegasusPlayer, InstanceStates> disconnectedPlayers;
 
+    private final Announcer globalAnnouncer;
+    private final List<Announcer> teamAnnouncers;
+
     // TODO: Announcer management
 
     /**
@@ -34,6 +39,8 @@ public class PlayerManager implements Listener {
         this.playerSpawns = new HashMap<>();
         this.frozenPlayers = new ArrayList<>();
         this.disconnectedPlayers = new HashMap<>();
+        this.globalAnnouncer = new Announcer();
+        this.teamAnnouncers = new ArrayList<>();
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
 
@@ -46,6 +53,8 @@ public class PlayerManager implements Listener {
         this.playerSpawns = new HashMap<>();
         this.frozenPlayers = new ArrayList<>();
         this.disconnectedPlayers = new HashMap<>();
+        this.globalAnnouncer = new Announcer();
+        this.teamAnnouncers = new ArrayList<>();
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
 
@@ -55,6 +64,11 @@ public class PlayerManager implements Listener {
      */
     public void setTeams(@NotNull final List<Team> teams){
         this.teams = teams;
+        this.globalAnnouncer.setPlayers(this.getPlayers());
+        for(Team team : this.teams){
+            Announcer announcer = new Announcer(team.players());
+            this.teamAnnouncers.add(announcer);
+        }
     }
 
     /**
@@ -66,7 +80,7 @@ public class PlayerManager implements Listener {
         Dispatcher dispatcher = new Dispatcher(DispatcherAlgorithm.ROUND_ROBIN);
         switch (gameType){
             case SOLO -> {
-                this.playerSpawns = dispatcher.dispatch(this.getPlayers(), spawns);
+                this.playerSpawns = dispatcher.dispatch(Lists.newArrayList(this.getPlayers()), spawns);
             }
             default -> throw new UnsupportedOperationException("Not implemented yet");
         }
@@ -76,8 +90,8 @@ public class PlayerManager implements Listener {
      * Get the players managed by this PlayerManager
      * @return The players
      */
-    public List<PegasusPlayer> getPlayers(){
-        List<PegasusPlayer> players = new ArrayList<>();
+    public Set<PegasusPlayer> getPlayers(){
+        Set<PegasusPlayer> players = new HashSet<>();
         for(Team team : this.teams)
             players.addAll(team.players());
         return players;
@@ -89,6 +103,22 @@ public class PlayerManager implements Listener {
      */
     public List<Team> getTeams() {
         return this.teams;
+    }
+
+    /**
+     * Get the global announcer
+     * @return The global announcer
+     */
+    public Announcer getGlobalAnnouncer() {
+        return globalAnnouncer;
+    }
+
+    /**
+     * Get the announcers for each team
+     * @return The list of announcers
+     */
+    public List<Announcer> getTeamAnnouncers() {
+        return teamAnnouncers;
     }
 
     public Map<PegasusPlayer, RelativeLocation> getPlayerSpawns() {

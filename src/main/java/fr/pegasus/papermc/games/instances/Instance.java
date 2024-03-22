@@ -88,6 +88,9 @@ public abstract class Instance implements Listener {
         this.onReady();
     }
 
+    /**
+     * Start the instance
+     */
     public final void start(){
         if(this.state != InstanceStates.READY)
             throw new IllegalStateException("Instance %d is not ready to start".formatted(this.id));
@@ -96,7 +99,7 @@ public abstract class Instance implements Listener {
         this.playerManager.setGameModeAll(GameMode.SPECTATOR);
         this.playerManager.setFrozenAll(false);
         this.onPreStart();
-        new Countdown(10, i -> this.announceChat("Starting in %d seconds".formatted(i)), () -> {
+        new Countdown(10, i -> this.playerManager.getGlobalAnnouncer().announceChat("Starting in %d seconds".formatted(i)), () -> {
             this.updateState(InstanceStates.STARTED);
             // Start code
             this.onStart();
@@ -104,6 +107,9 @@ public abstract class Instance implements Listener {
         }).start(this.plugin);
     }
 
+    /**
+     * Start a round
+     */
     public final void startRound(){
         if(state != InstanceStates.STARTED && state != InstanceStates.ROUND_ENDED)
             throw new IllegalStateException("Instance %d is not ready to start a round".formatted(this.id));
@@ -113,7 +119,7 @@ public abstract class Instance implements Listener {
         this.playerManager.setGameModeAll(GameMode.ADVENTURE);
         this.playerManager.setFrozenAll(true);
         this.onRoundPreStart();
-        new Countdown(5, i -> this.announceChat("Round starting in %d seconds".formatted(i)), () -> {
+        new Countdown(5, i -> this.playerManager.getGlobalAnnouncer().announceChat("Round starting in %d seconds".formatted(i)), () -> {
             this.updateState(InstanceStates.ROUND_STARTED);
             // Round start code
             this.playerManager.setFrozenAll(false);
@@ -123,6 +129,9 @@ public abstract class Instance implements Listener {
         }).start(this.plugin);
     }
 
+    /**
+     * End a round
+     */
     public final void endRound(){
         if(state != InstanceStates.ROUND_STARTED)
             throw new IllegalStateException("Instance %d is not ready to end a round".formatted(this.id));
@@ -136,18 +145,30 @@ public abstract class Instance implements Listener {
         this.onRoundEnd();
         this.currentRound++;
         if(this.isGameEnd())
-            new Countdown(3, i -> this.announceChat("Game end in %d seconds".formatted(i)), () -> this.stop(false)).start(this.plugin);
+            new Countdown(
+                    3,
+                    i -> this.playerManager.getGlobalAnnouncer().announceChat("Game end in %d seconds".formatted(i)), () ->
+                    this.stop(false))
+                .start(this.plugin);
         else
-            new Countdown(3, i -> this.announceChat("Next round starting in %d seconds".formatted(i)), this::startRound).start(this.plugin);
+            new Countdown(
+                    3,
+                    i -> this.playerManager.getGlobalAnnouncer().announceChat("Next round starting in %d seconds".formatted(i)),
+                    this::startRound)
+                .start(this.plugin);
     }
 
+    /**
+     * Stop the instance
+     * @param force Force the instance to stop
+     */
     public final void stop(boolean force){
         if(state != InstanceStates.ROUND_ENDED)
             throw new IllegalStateException("Instance %d is not ready to end".formatted(this.id));
         this.updateState(InstanceStates.ENDED);
         this.onEnd();
         if(!force)
-            new Countdown(10, i -> this.announceChat("Instance closing in %d seconds".formatted(i)), () -> {
+            new Countdown(10, i -> this.playerManager.getGlobalAnnouncer().announceChat("Instance closing in %d seconds".formatted(i)), () -> {
                 this.unregisterEvents();
                 this.updateState(InstanceStates.CLOSED);
             }).start(this.plugin);
@@ -183,6 +204,10 @@ public abstract class Instance implements Listener {
         new InstanceStateChangedEvent(this, oldState, this.state).callEvent();
     }
 
+    /**
+     * Check if the game is ended
+     * @return True if the game is ended
+     */
     private boolean isGameEnd(){
         return this.instanceOptions.getRoundDurations().size() < this.currentRound;
     }
@@ -199,6 +224,11 @@ public abstract class Instance implements Listener {
         return false;
     }
 
+    /**
+     * Check if the player is in this instance
+     * @param playerName The player name to check
+     * @return True if the player is in this instance
+     */
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private boolean isPlayerInInstance(@NotNull final String playerName){
         if(this.state == InstanceStates.CREATED)
@@ -206,17 +236,13 @@ public abstract class Instance implements Listener {
         return this.isPlayerInInstance(new PegasusPlayer(playerName));
     }
 
+    /**
+     * Unregister the events
+     */
     private void unregisterEvents(){
         PlayerJoinEvent.getHandlerList().unregister(this);
         PlayerQuitEvent.getHandlerList().unregister(this);
-    }
-
-    // PUBLIC UTILS
-
-    public final void announceChat(@NotNull final String message){
-        for(PegasusPlayer pPlayer : this.playerManager.getPlayers())
-            if(pPlayer.isOnline())
-                pPlayer.getPlayer().sendMessage(message);
+        PlayerTeleportEvent.getHandlerList().unregister(this);
     }
 
     // GETTERS

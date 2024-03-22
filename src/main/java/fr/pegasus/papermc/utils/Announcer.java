@@ -1,20 +1,30 @@
 package fr.pegasus.papermc.utils;
 
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.title.Title;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 public class Announcer {
 
-    private final List<PegasusPlayer> players;
+    private Set<PegasusPlayer> players;
 
     /**
      * Create a new Announcer
      * @param players The players to announce to
      */
-    public Announcer(@NotNull final List<PegasusPlayer> players) {
+    public Announcer(@NotNull final Set<PegasusPlayer> players) {
+        this.players = players;
+    }
+
+    public Announcer(){
+        this.players = new HashSet<>();
+    }
+
+    public void setPlayers(@NotNull final Set<PegasusPlayer> players){
         this.players = players;
     }
 
@@ -28,6 +38,14 @@ public class Announcer {
                 continue;
             player.getPlayer().sendMessage(component);
         }
+    }
+
+    /**
+     * Announce a chat message to all players
+     * @param message The message to announce
+     */
+    public void announceChat(@NotNull final String message){
+        this.announceChat(Component.text(message));
     }
 
     /**
@@ -52,5 +70,13 @@ public class Announcer {
                 continue;
             player.getPlayer().sendActionBar(component);
         }
+    }
+
+    /**
+     * Announce an action bar to all players
+     * @param message The message to display on action bar
+     */
+    public void announceActionBar(@NotNull final String message){
+        this.announceActionBar(Component.text(message));
     }
 }
