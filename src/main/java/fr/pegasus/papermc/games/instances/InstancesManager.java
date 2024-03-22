@@ -96,9 +96,8 @@ public class InstancesManager implements Listener {
     public void dispatchTeams(List<List<Team>> teams){
         // Allocate instances if needed
         this.allocateInstances(teams.size());
-        for(int i = 0; i < teams.size(); i++){
+        for(int i = 0; i < teams.size(); i++)
             this.instances.get(i).affect(teams.get(i));
-        }
     }
 
     /**
@@ -141,12 +140,9 @@ public class InstancesManager implements Listener {
      * @return True if all instances have the target state, false otherwise
      */
     private boolean isInstancesHasState(InstanceStates targetState){
-        for(Instance instance : this.instances){
-            if(instance.getState() != targetState){
-                System.out.println("Instance " + instance.getId() + " has state " + instance.getState());
+        for(Instance instance : this.instances)
+            if(instance.getState() != targetState)
                 return false;
-            }
-        }
         return true;
     }
 
