@@ -93,7 +93,7 @@ public class InstancesManager implements Listener {
      * Dispatch teams to instances
      * @param teams The teams to dispatch (created in the GameManager)
      */
-    public void dispatchTeams(List<List<Team>> teams){
+    public void dispatchTeams(@NotNull final List<List<Team>> teams){
         // Allocate instances if needed
         this.allocateInstances(teams.size());
         for(int i = 0; i < teams.size(); i++)
@@ -127,7 +127,7 @@ public class InstancesManager implements Listener {
      * @param player The {@link PegasusPlayer} to check
      * @return True if the player is in any of the instances, false otherwise
      */
-    public boolean isPlayerInInstances(PegasusPlayer player){
+    public boolean isPlayerInInstances(@NotNull final PegasusPlayer player){
         for(Instance instance : this.instances)
             if(instance.getPlayerManager().getPlayers().contains(player))
                 return true;
@@ -139,7 +139,7 @@ public class InstancesManager implements Listener {
      * @param targetState The target {@link InstanceStates}
      * @return True if all instances have the target state, false otherwise
      */
-    private boolean isInstancesHasState(InstanceStates targetState){
+    private boolean isInstancesHasState(@NotNull final InstanceStates targetState){
         for(Instance instance : this.instances)
             if(instance.getState() != targetState)
                 return false;
@@ -150,7 +150,7 @@ public class InstancesManager implements Listener {
      * Update the state of the instance manager
      * @param newState The new {@link InstanceManagerStates}
      */
-    private void updateState(InstanceManagerStates newState){
+    private void updateState(@NotNull final InstanceManagerStates newState){
         InstanceManagerStates oldState = this.state;
         this.state = newState;
         new InstanceManagerStateChangedEvent(this, oldState, this.state).callEvent();
@@ -161,7 +161,7 @@ public class InstancesManager implements Listener {
      * @param e The {@link InstanceStateChangedEvent}
      */
     @EventHandler
-    public void onInstanceStateChanged(InstanceStateChangedEvent e){
+    public void onInstanceStateChanged(@NotNull final InstanceStateChangedEvent e){
         PegasusPlugin.logger.info("Instance %d changed state from %s to %s".formatted(e.getInstance().getId(), e.getOldState(), e.getNewState()));
         switch (e.getNewState()){
             case READY -> {

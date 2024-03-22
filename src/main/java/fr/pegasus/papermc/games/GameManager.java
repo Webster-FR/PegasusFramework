@@ -103,7 +103,7 @@ public class GameManager implements Listener {
      * @param teams The teams to generate
      * @return The generated teams
      */
-    public List<List<Team>> generateTeams(Set<Team> teams){
+    public List<List<Team>> generateTeams(@NotNull final Set<Team> teams){
         List<List<Team>> instanceTeams = new ArrayList<>();
         switch (this.commonOptions.getGameType()){
             case SOLO -> {
@@ -169,7 +169,7 @@ public class GameManager implements Listener {
      * @param player The {@link PegasusPlayer} to check
      * @return True if the player is in any of the instances, false otherwise
      */
-    public boolean isPlayerInGame(PegasusPlayer player){
+    public boolean isPlayerInGame(@NotNull final PegasusPlayer player){
         return this.instancesManager.isPlayerInInstances(player);
     }
 
@@ -178,7 +178,7 @@ public class GameManager implements Listener {
      * @param e The {@link InstanceManagerStateChangedEvent}
      */
     @EventHandler
-    public void onInstanceManagerStateChanged(InstanceManagerStateChangedEvent e){
+    public void onInstanceManagerStateChanged(@NotNull final InstanceManagerStateChangedEvent e){
         PegasusPlugin.logger.info("Instance manager state changed from %s to %s".formatted(e.getOldState(), e.getNewState()));
         if(e.getNewState() == InstanceManagerStates.ENDED){
             this.commonOptions.getWorld().getWorld().getPlayers().forEach(player -> {

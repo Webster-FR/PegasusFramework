@@ -21,6 +21,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -34,12 +35,18 @@ public abstract class Instance implements Listener {
     private final InstanceOptions instanceOptions;
     private final ScoreManager scoreManager;
 
-    private PlayerManager playerManager;
+    private final PlayerManager playerManager;
     private InstanceStates state;
     private final Location instanceLocation;
     private int currentRound = 1;
 
-    public Instance(int id, JavaPlugin plugin, CommonOptions commonOptions, InstanceOptions instanceOptions, ScoreManager scoreManager) {
+    public Instance(
+            int id,
+            @NotNull final JavaPlugin plugin,
+            @NotNull final CommonOptions commonOptions,
+            @NotNull final InstanceOptions instanceOptions,
+            @NotNull final ScoreManager scoreManager
+    ) {
         this.id = id;
         this.plugin = plugin;
         this.commonOptions = commonOptions;
@@ -63,7 +70,7 @@ public abstract class Instance implements Listener {
      * Affect and teleport the teams to this instance
      * @param teams The teams to affect
      */
-    public final void affect(List<Team> teams){
+    public final void affect(@NotNull final List<Team> teams){
         this.playerManager.setTeams(teams);
         this.playerManager.setFrozenAll(true);
         // Affect spawns and teleport players to it
@@ -158,7 +165,11 @@ public abstract class Instance implements Listener {
     public abstract void onRoundEnd();
     public abstract void onEnd();
     public abstract void onTick(int remainingTime);
-    public abstract void onPlayerReconnect(Player player, InstanceStates disconnectState, InstanceStates reconnectState);
+    public abstract void onPlayerReconnect(
+            @NotNull final Player player,
+            @NotNull final InstanceStates disconnectState,
+            @NotNull final InstanceStates reconnectState
+    );
 
     // UTILS
 
@@ -166,7 +177,7 @@ public abstract class Instance implements Listener {
      * Set the state of the instance
      * @param state The new {@link InstanceStates}
      */
-    private void updateState(InstanceStates state){
+    private void updateState(@NotNull final InstanceStates state){
         InstanceStates oldState = this.state;
         this.state = state;
         new InstanceStateChangedEvent(this, oldState, this.state).callEvent();
@@ -181,7 +192,7 @@ public abstract class Instance implements Listener {
      * @param pPlayer The player to check
      * @return true if the player is in this instance
      */
-    private boolean isPlayerInInstance(PegasusPlayer pPlayer){
+    private boolean isPlayerInInstance(@NotNull final PegasusPlayer pPlayer){
         for(PegasusPlayer pPlayerInInstance : this.playerManager.getPlayers())
             if(pPlayerInInstance.equals(pPlayer))
                 return true;
@@ -189,7 +200,7 @@ public abstract class Instance implements Listener {
     }
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    private boolean isPlayerInInstance(String playerName){
+    private boolean isPlayerInInstance(@NotNull final String playerName){
         if(this.state == InstanceStates.CREATED)
             return false;
         return this.isPlayerInInstance(new PegasusPlayer(playerName));
@@ -202,7 +213,7 @@ public abstract class Instance implements Listener {
 
     // PUBLIC UTILS
 
-    public void announceChat(String message){
+    public final void announceChat(@NotNull final String message){
         for(PegasusPlayer pPlayer : this.playerManager.getPlayers())
             if(pPlayer.isOnline())
                 pPlayer.getPlayer().sendMessage(message);
@@ -231,7 +242,7 @@ public abstract class Instance implements Listener {
      * @param e The {@link PlayerJoinEvent}
      */
     @EventHandler(priority = EventPriority.HIGH)
-    public void onPlayerJoin(PlayerJoinEvent e){
+    public final void onPlayerJoin(@NotNull final PlayerJoinEvent e){
         if(!isPlayerInInstance(e.getPlayer().getName()))
             return;
         PegasusPlayer pPlayer = new PegasusPlayer(e.getPlayer().getName());
@@ -251,7 +262,7 @@ public abstract class Instance implements Listener {
      * @param e The {@link PlayerQuitEvent}
      */
     @EventHandler
-    public void onPlayerQuit(PlayerQuitEvent e){
+    public final void onPlayerQuit(@NotNull final PlayerQuitEvent e){
         if(!this.isPlayerInInstance(e.getPlayer().getName()))
             return;
         this.playerManager.playerDisconnect(new PegasusPlayer(e.getPlayer().getName()), this.state);
@@ -262,7 +273,7 @@ public abstract class Instance implements Listener {
      * @param e The {@link PlayerTeleportEvent}
      */
     @EventHandler
-    public void onPlayerTeleport(PlayerTeleportEvent e){
+    public final void onPlayerTeleport(@NotNull final PlayerTeleportEvent e){
         if(!this.isPlayerInInstance(e.getPlayer().getName()))
             return;
         // Prevent spectator teleport for instance players

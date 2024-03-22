@@ -130,7 +130,7 @@ public class ServerManager implements Listener {
      * @param e The PlayerJoinEvent
      */
     @EventHandler(priority = EventPriority.LOWEST)
-    public void onPlayerJoin(PlayerJoinEvent e){
+    public void onPlayerJoin(@NotNull final PlayerJoinEvent e){
         PegasusPlayer pPlayer = new PegasusPlayer(e.getPlayer().getName());
         for(GameManager gameManager : this.gameManagers)
             if(gameManager.isPlayerInGame(pPlayer))

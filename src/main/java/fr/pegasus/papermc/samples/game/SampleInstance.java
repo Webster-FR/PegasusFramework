@@ -10,6 +10,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
 
 public class SampleInstance extends Instance {
     public SampleInstance(int id, JavaPlugin plugin, CommonOptions commonOptions, InstanceOptions instanceOptions, ScoreManager scoreManager) {
@@ -62,7 +63,7 @@ public class SampleInstance extends Instance {
     }
 
     @Override
-    public void onPlayerReconnect(Player player, InstanceStates disconnectState, InstanceStates reconnectState) {
+    public void onPlayerReconnect(@NotNull Player player, @NotNull InstanceStates disconnectState, @NotNull InstanceStates reconnectState) {
         if(disconnectState != InstanceStates.ROUND_STARTED && reconnectState == InstanceStates.ROUND_STARTED)
             player.getInventory().addItem(new ItemStack(Material.BEDROCK, 1));
     }

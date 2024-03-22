@@ -12,6 +12,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
@@ -22,11 +23,13 @@ public class PlayerManager implements Listener {
     private final List<PegasusPlayer> frozenPlayers;
     private final Map<PegasusPlayer, InstanceStates> disconnectedPlayers;
 
+    // TODO: Announcer management
+
     /**
      * Create a new PlayerManager
      * @param teams The teams to manage
      */
-    public PlayerManager(JavaPlugin plugin, List<Team> teams) {
+    public PlayerManager(@NotNull final JavaPlugin plugin, @NotNull final List<Team> teams) {
         this.teams = teams;
         this.playerSpawns = new HashMap<>();
         this.frozenPlayers = new ArrayList<>();
@@ -38,7 +41,7 @@ public class PlayerManager implements Listener {
      * Create a new PlayerManager
      * @param plugin The plugin instance
      */
-    public PlayerManager(JavaPlugin plugin) {
+    public PlayerManager(@NotNull final JavaPlugin plugin) {
         this.teams = new ArrayList<>();
         this.playerSpawns = new HashMap<>();
         this.frozenPlayers = new ArrayList<>();
@@ -50,7 +53,7 @@ public class PlayerManager implements Listener {
      * Set the teams managed by this PlayerManager
      * @param teams The teams to manage
      */
-    public void setTeams(List<Team> teams){
+    public void setTeams(@NotNull final List<Team> teams){
         this.teams = teams;
     }
 
@@ -59,7 +62,7 @@ public class PlayerManager implements Listener {
      * @param spawns The spawns to affect
      * @param gameType The {@link GameType} of the game
      */
-    public void affectSpawns(List<RelativeLocation> spawns, GameType gameType){
+    public void affectSpawns(@NotNull final List<RelativeLocation> spawns, @NotNull final GameType gameType){
         Dispatcher dispatcher = new Dispatcher(DispatcherAlgorithm.ROUND_ROBIN);
         switch (gameType){
             case SOLO -> {
@@ -92,11 +95,11 @@ public class PlayerManager implements Listener {
         return playerSpawns;
     }
 
-    public boolean isFrozen(PegasusPlayer player) {
+    public boolean isFrozen(@NotNull final PegasusPlayer player) {
         return this.frozenPlayers.contains(player);
     }
 
-    public void setFrozen(PegasusPlayer player, boolean frozen) {
+    public void setFrozen(@NotNull final PegasusPlayer player, boolean frozen) {
         if(frozen)
             this.frozenPlayers.add(player);
         else
@@ -108,22 +111,22 @@ public class PlayerManager implements Listener {
             this.setFrozen(player, frozen);
     }
 
-    public void setGameMode(PegasusPlayer player, GameMode gameMode){
+    public void setGameMode(@NotNull final PegasusPlayer player, @NotNull final GameMode gameMode){
         if(!player.isOnline())
             return;
         player.getPlayer().setGameMode(gameMode);
     }
 
-    public void setGameModeAll(GameMode gameMode){
+    public void setGameModeAll(@NotNull final GameMode gameMode){
         for(PegasusPlayer player : this.getPlayers())
             this.setGameMode(player, gameMode);
     }
 
-    public void playerDisconnect(PegasusPlayer player, InstanceStates currentState){
+    public void playerDisconnect(@NotNull final PegasusPlayer player, @NotNull final InstanceStates currentState){
         this.disconnectedPlayers.put(player, currentState);
     }
 
-    public InstanceStates playerReconnect(PegasusPlayer player){
+    public InstanceStates playerReconnect(@NotNull final PegasusPlayer player){
         InstanceStates state = this.disconnectedPlayers.get(player);
         this.disconnectedPlayers.remove(player);
         return state;
@@ -134,13 +137,13 @@ public class PlayerManager implements Listener {
     }
 
     @EventHandler
-    public void onPlayerMove(PlayerMoveEvent e){
+    public void onPlayerMove(@NotNull final PlayerMoveEvent e){
         PegasusPlayer pPlayer = new PegasusPlayer(e.getPlayer());
         if(this.isFrozen(pPlayer) && e.getFrom().distance(e.getTo()) > 0)
             e.setCancelled(true);
     }
 
-    public void teleportAllToSpawns(Location instanceLocation) {
+    public void teleportAllToSpawns(@NotNull final Location instanceLocation) {
         for(PegasusPlayer pPlayer : this.playerSpawns.keySet()){
             if(!pPlayer.isOnline())
                 continue;
