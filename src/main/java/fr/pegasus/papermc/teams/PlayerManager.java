@@ -135,11 +135,7 @@ public class PlayerManager implements Listener {
 
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent e){
-        PegasusPlayer pPlayer = this.getPlayers().stream().filter(p -> p.getPlayer().equals(e.getPlayer())).findFirst().orElse(null);
-        if(Objects.isNull(pPlayer))
-            return;
-        if(!pPlayer.isOnline())
-            return;
+        PegasusPlayer pPlayer = new PegasusPlayer(e.getPlayer());
         if(this.isFrozen(pPlayer) && e.getFrom().distance(e.getTo()) > 0)
             e.setCancelled(true);
     }

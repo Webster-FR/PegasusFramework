@@ -11,6 +11,14 @@ public class PegasusPlayer {
 
     /**
      * Create a new PegasusPlayer
+     * @param player The player
+     */
+    public PegasusPlayer(final @NotNull Player player){
+        this.name = player.getName();
+    }
+
+    /**
+     * Create a new PegasusPlayer
      * @param name The player name
      */
     public PegasusPlayer(final @NotNull String name) {
