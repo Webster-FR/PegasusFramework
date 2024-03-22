@@ -135,13 +135,15 @@ public abstract class Instance implements Listener {
             throw new IllegalStateException("Instance %d is not ready to end".formatted(this.id));
         this.updateState(InstanceStates.ENDED);
         this.onEnd();
-        this.unregisterEvents();
         if(!force)
             new Countdown(10, i -> this.announceChat("Instance closing in %d seconds".formatted(i)), () -> {
+                this.unregisterEvents();
                 this.updateState(InstanceStates.CLOSED);
             }).start(this.plugin);
-        else
+        else{
+            this.unregisterEvents();
             this.updateState(InstanceStates.CLOSED);
+        }
     }
 
     public abstract void onReady();

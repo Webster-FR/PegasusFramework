@@ -136,6 +136,7 @@ public class ServerManager implements Listener {
             if(gameManager.isPlayerInGame(pPlayer))
                 return;
         e.getPlayer().teleport(this.getLobbyWorld().getSpawnPoint());
+        e.getPlayer().getInventory().clear();
         // Setup spectating hot bar
     }
 }
