@@ -156,10 +156,19 @@ public class GameManager implements Listener {
         };
     }
 
+    /**
+     * Get the current game manager state
+     * @return The {@link GameManagerStates}
+     */
     public GameManagerStates getState() {
         return this.state;
     }
 
+    /**
+     * Check if the player is in any of the instances
+     * @param player The {@link PegasusPlayer} to check
+     * @return True if the player is in any of the instances, false otherwise
+     */
     public boolean isPlayerInGame(PegasusPlayer player){
         return this.instancesManager.isPlayerInInstances(player);
     }
