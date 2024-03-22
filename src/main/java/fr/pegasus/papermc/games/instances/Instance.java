@@ -19,6 +19,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
 
@@ -68,8 +69,10 @@ public abstract class Instance implements Listener {
         // Affect spawns and teleport players to it
         this.playerManager.affectSpawns(this.instanceOptions.getSpawnPoints(), this.commonOptions.getGameType());
         for(PegasusPlayer pPlayer : this.playerManager.getPlayerSpawns().keySet()){
-            if(!pPlayer.isOnline())
+            if(!pPlayer.isOnline()){
                 this.playerManager.playerDisconnect(pPlayer, this.state);
+                continue;
+            }
             Player player = pPlayer.getPlayer();
             player.setRespawnLocation(this.playerManager.getPlayerSpawns().get(pPlayer).toAbsolute(this.instanceLocation));
             player.teleport(this.playerManager.getPlayerSpawns().get(pPlayer).toAbsolute(this.instanceLocation));
@@ -187,6 +190,8 @@ public abstract class Instance implements Listener {
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private boolean isPlayerInInstance(String playerName){
+        if(this.state == InstanceStates.CREATED)
+            return false;
         return this.isPlayerInInstance(new PegasusPlayer(playerName));
     }
 
@@ -227,8 +232,6 @@ public abstract class Instance implements Listener {
      */
     @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerJoin(PlayerJoinEvent e){
-        if(this.state == InstanceStates.CREATED)
-            return;
         if(!isPlayerInInstance(e.getPlayer().getName()))
             return;
         PegasusPlayer pPlayer = new PegasusPlayer(e.getPlayer().getName());
@@ -243,12 +246,27 @@ public abstract class Instance implements Listener {
         PegasusPlugin.logger.info("Player %s reconnected to instance %d".formatted(e.getPlayer().getName(), this.id));
     }
 
+    /**
+     * Handle the player disconnection
+     * @param e The {@link PlayerQuitEvent}
+     */
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent e){
-        if(this.state == InstanceStates.CREATED)
-            return;
         if(!this.isPlayerInInstance(e.getPlayer().getName()))
             return;
         this.playerManager.playerDisconnect(new PegasusPlayer(e.getPlayer().getName()), this.state);
+    }
+
+    /**
+     * Handle the player teleport
+     * @param e The {@link PlayerTeleportEvent}
+     */
+    @EventHandler
+    public void onPlayerTeleport(PlayerTeleportEvent e){
+        if(!this.isPlayerInInstance(e.getPlayer().getName()))
+            return;
+        // Prevent spectator teleport for instance players
+        if(e.getCause() == PlayerTeleportEvent.TeleportCause.SPECTATE)
+            e.setCancelled(true);
     }
 }
