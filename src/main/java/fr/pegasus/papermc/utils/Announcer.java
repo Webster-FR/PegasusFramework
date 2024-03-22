@@ -61,6 +61,15 @@ public class Announcer {
     }
 
     /**
+     * Announce a title to all players
+     * @param title The title to announce
+     * @param subtitle The subtitle to announce
+     */
+    public void announceTitle(@NotNull final String title, @NotNull final String subtitle){
+        this.announceTitle(Title.title(Component.text(title), Component.text(subtitle)));
+    }
+
+    /**
      * Announce an action bar to all players
      * @param component The message to display on action bar
      */
